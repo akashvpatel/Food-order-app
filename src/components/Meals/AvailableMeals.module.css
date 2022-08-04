@@ -27,3 +27,11 @@
     text-align: center;
     text-decoration-line: underline;
   }
+  .loading{
+    color: black;
+    text-align: center;
+  }
+  error{
+    color: red ;
+    text-align: center;
+  }

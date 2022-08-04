@@ -1,38 +1,63 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import classes from "./AvailableMeals.module.css"
 import MealItems from "./MealItems/MealItems"
 import Card from '../UI/Card';
 
 
-const DUMMY_MEALS = [
-    {
-        id: 'm1',
-        name: 'Pav Bhaji',
-        description: 'Pav bhaji is a hearty, delightsome.',
-        price: 80,
-    },
-    {
-        id: 'm2',
-        name: 'Chholle Bhature',
-        description: 'It comes with Bhatura(2pc),chhole(200gms),Aloo sabji,onion, Achar & Mirchi',
-        price: 60,
-    },
-    {
-        id: 'm3',
-        name: 'Cheesy Margherita Pizza.',
-        description: 'Pizza Sauce, Mozzarella & White Cheddar',
-        price: 100,
-    },
-    {
-        id: 'm4',
-        name: 'Cheese Corn Bread',
-        description: 'Cheese, Garlic, Corn & Herb',
-        price: 85,
-    },
-];
+const AvailableMeals = () => {
+    const [meals, setMeals] = useState([]);
+    const [isLoding, setIsLoading] = useState(true)
+    const [httpError, setHttpError] = useState();
 
-const AvaliableMeals = () => {
-    const mealsList = DUMMY_MEALS.map((meal) => (
+
+    useEffect(() => {
+        const fetchMeals = async () => {
+            const response = await fetch("https://food-order-app-e2ce8-default-rtdb.firebaseio.com/meals.json")
+            const responseData = await response.json();
+            if (!response.ok) {
+                throw new Error("Something Went Wrong!");
+            }
+            const loadedMeal = [];
+            
+
+            for (const key in responseData) {
+                loadedMeal.push({
+                    id: key,
+                    name: responseData[key].name,
+                    description: responseData[key].description,
+                    price: responseData[key].price,
+
+
+                })
+            }
+            setMeals(loadedMeal);
+            setIsLoading(false);
+        }
+
+        fetchMeals().catch((error) => {
+            setIsLoading(false);
+            setHttpError(error.message);
+        });
+
+    }, []);
+
+    if (isLoding) {
+        return (
+            <section className={classes.loading}>
+                <p>Loading...</p>
+            </section>
+        )
+    }
+
+    if (httpError) {
+        return (
+            <section className="classes.error">
+                <p>{httpError}</p>
+            </section>
+
+        );
+    }
+    const mealsList = meals.map((meal) => (
         <MealItems
             id={meal.id}
             key={meal.id}
@@ -50,7 +75,7 @@ const AvaliableMeals = () => {
 
 
         </section>
-    )
-}
+    );
+};
 
-export default AvaliableMeals
+export default AvailableMeals;
